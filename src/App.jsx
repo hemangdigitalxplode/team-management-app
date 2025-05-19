@@ -6,6 +6,7 @@ import './index.css'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Tasks from './Pages/Tasks'
+// import AddTask from './Pages/AddTask'
 import AddTask from './Pages/AddTask'
 import Attendance from './Pages/Attendance'
 import OfficeEvents from './Pages/OfficeEvents'
