@@ -27,7 +27,7 @@ const TaskDetails = () => {
     return (
         <div className="d-flex">
             <Sidebar />
-            <div className="flex-grow-1">
+            <div className="flex-grow-1" style={{ minHeight: '100vh', background: '#f9f9f9' }}>
                 <Header />
                 <div className="p-4">
                     <button
@@ -72,7 +72,7 @@ const TaskDetails = () => {
 
                         <div className="col-md-6">
                             <label className="form-label">Deadline</label>
-                            <input type="text" className="form-control" value={task.due_date} readOnly />
+                            <input type="text" className="form-control" value={new Date(task.due_date).toLocaleDateString('en-GB').replaceAll('/', '-')} readOnly />
                         </div>
 
                         {task.client && (
@@ -95,27 +95,39 @@ const TaskDetails = () => {
                             </select>
                         </div>
 
-                        {task.document_path && (
+                        {task.document_path && Array.isArray(JSON.parse(task.document_path)) && (
                             <div className="col-md-6">
-                                <label className="form-label">Attached Document</label>
-                                {
-                                    task.document_path.endsWith('.pdf') ? (
-                                        <iframe
-                                            src={`https://mockup4clients.com/task-management-backend/public/${task.document_path}`}
-                                            width="100%"
-                                            height="400px"
-                                            title="Document Preview"
-                                        ></iframe>
-                                    ) : (
-                                        <img
-                                            src={`https://mockup4clients.com/task-management-backend/public/${task.document_path}`}
-                                            alt="Document"
-                                            className="img-fluid rounded border"
-                                        />
-                                    )
-                                }
+                                <label className="form-label">Attached Documents</label>
+                                {JSON.parse(task.document_path).map((file, index) => {
+                                    const fileExtension = file.split('.').pop().toLowerCase();
+                                    const fileUrl = `https://mockup4clients.com/task-management-backend/public/${file}`;
+
+                                    return (
+                                        <div key={index} className="mb-3">
+                                            {['pdf'].includes(fileExtension) ? (
+                                                <iframe
+                                                    src={fileUrl}
+                                                    width="100%"
+                                                    height="400px"
+                                                    title={`Document-${index}`}
+                                                ></iframe>
+                                            ) : ['jpg', 'jpeg', 'png'].includes(fileExtension) ? (
+                                                <img
+                                                    src={fileUrl}
+                                                    alt={`Document-${index}`}
+                                                    className="img-fluid rounded border"
+                                                />
+                                            ) : (
+                                                <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                                    {file.split('/').pop()}
+                                                </a>
+                                            )}
+                                        </div>
+                                    );
+                                })}
                             </div>
                         )}
+
                     </div>
 
                     {/* Timer section */}

@@ -45,18 +45,18 @@ const EmployeeLogin = () => {
       <div className="card shadow p-4 customLoginCard" style={{ maxWidth: '400px', width: '100%' }}>
         <div className="text-center mb-4">
           <img src={logo} alt="Logo" className="mb-3 mainLogo" />
-          <h4 className="fw-bold heading">Employee Login</h4>
+          <h4 className="fw-bold heading">Member Login</h4>
           <p className="text-white">Access your task dashboard by logging in</p>
         </div>
 
         <form onSubmit={handleLogin}>
           <div className="mb-3">
-            <label htmlFor="employeeId" className="form-label">Employee ID</label>
+            <label htmlFor="employeeId" className="form-label">Member ID</label>
             <input
               type="text"
               className="form-control"
               id="employeeId"
-              placeholder="Enter your Employee ID"
+              placeholder="Enter your Member ID"
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value)}
             />

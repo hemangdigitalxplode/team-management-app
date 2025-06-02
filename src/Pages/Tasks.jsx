@@ -38,7 +38,7 @@ const Tasks = () => {
     return (
         <div className="d-flex">
             <Sidebar />
-            <div className="flex-grow-1">
+            <div className="flex-grow-1" style={{ minHeight: '100vh', background: '#f9f9f9' }}>
                 <Header />
                 <div className="p-4">
                     <div className="d-flex justify-content-between align-items-center mb-3">
@@ -58,6 +58,7 @@ const Tasks = () => {
                                 <th>Client Name</th>
                                 <th>Status</th>
                                 <th>Priority</th>
+                                <th>Assigned Date</th>
                                 <th>Deadline</th>
                                 <th>Actions</th>
                             </tr>
@@ -74,7 +75,7 @@ const Tasks = () => {
                                         <td>{task.subject}</td>
                                         <td>{task.client}</td>
                                         <td>
-                                            <span className={`badge bg-${task.status === 'Completed' ? 'success' : 'warning text-dark'}`}>
+                                            <span className={`badge text-white text-capitalize bg-${task.status === 'Completed' ? 'success' : 'warning'}`}>
                                                 {task.status}
                                             </span>
 
@@ -91,6 +92,7 @@ const Tasks = () => {
                                                 {task.priority}
                                             </span>
                                         </td>
+                                        <td>{new Date(task.assigned_date).toLocaleDateString('en-GB').replaceAll('/', '-')}</td>
                                         <td>{new Date(task.due_date).toLocaleDateString('en-GB').replaceAll('/', '-')}</td>
                                         <td>
                                             <NavLink

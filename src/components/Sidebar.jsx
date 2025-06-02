@@ -5,7 +5,7 @@ import Logo from '../assets/new-dx-logo-updated.png'
 
 const Sidebar = () => {
   return (
-    <div className="sidebar text-white vh-100 p-3" style={{ width: '250px' }}>
+    <div className="sidebar text-white vh-100 p-3" style={{ width: '250px', position: 'sticky', top: 0 }}>
       {/* <h5 className="mb-4">Employee Panel</h5> */}
       <img src={Logo} alt="Logo" className="mb-3 sidebarLogo" />
       <ul className="nav flex-column sidebarLinks">
