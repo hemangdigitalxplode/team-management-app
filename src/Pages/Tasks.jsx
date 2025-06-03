@@ -73,7 +73,7 @@ const Tasks = () => {
                                     <tr key={task.id}>
                                         <td>{task.task_id}</td>
                                         <td>{task.subject}</td>
-                                        <td>{task.client}</td>
+                                        <td>{task.client?.name || 'N/A'}</td>
                                         <td>
                                             <span className={`badge text-white text-capitalize bg-${task.status === 'Completed' ? 'success' : 'warning'}`}>
                                                 {task.status}
