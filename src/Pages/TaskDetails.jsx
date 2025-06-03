@@ -4,13 +4,30 @@ import useTaskTimer from '../hooks/useTaskTimer';
 import { useUser } from '../context/UserContext';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import axiosInstance from '../api/axios';
 
 const TaskDetails = () => {
     const { state } = useLocation();
     const navigate = useNavigate();
     const { employee } = useUser();
     const task = state?.task;
-    const [status, setStatus] = useState('Pending');
+    const [status, setStatus] = useState(task?.status || 'To-do');
+
+    const handleStatusChange = async (e) => {
+        const newStatus = e.target.value;
+        setStatus(newStatus);
+
+        try {
+            await axiosInstance.put(`/tasks/${task.id}/status`, {
+                status: newStatus,
+                emp_id: employee.emp_id,
+            });
+            console.log('Status updated successfully');
+        } catch (error) {
+            console.error('Failed to update status', error);
+            alert('Could not update status. Try again.');
+        }
+    };
 
     const {
         seconds,
@@ -87,9 +104,9 @@ const TaskDetails = () => {
                             <select
                                 className="form-select"
                                 value={status}
-                                onChange={(e) => setStatus(e.target.value)}
+                                onChange={handleStatusChange}
                             >
-                                <option value="Pending">Pending</option>
+                                <option value="To-do">To-do</option>
                                 <option value="Working">Working</option>
                                 <option value="Completed">Completed</option>
                             </select>
