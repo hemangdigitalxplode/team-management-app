@@ -148,13 +148,13 @@ const TaskDetails = () => {
                     </div>
 
                     {/* Timer section */}
-                    <div className="row mb-3">
+                    <div className="row mb-3 d-none">
                         <div className="col-md-6 d-flex flex-column align-items-end justify-content-end">
                             <button
                                 className={`btn btn-sm ${isTiming ? 'btn-danger' : 'btn-success'} mb-2`}
                                 onClick={() => setIsTiming((prev) => !prev)}
                             >
-                                {isTiming ? 'Stop' : 'Start'} Timer
+                                {isTiming ? 'Stop' : 'Start'} Task
                             </button>
                             <div className="fw-bold">
                                 Time Spent: {formatTime(seconds)}
