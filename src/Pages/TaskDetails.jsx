@@ -5,6 +5,7 @@ import { useUser } from '../context/UserContext';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import axiosInstance from '../api/axios';
+import { toast } from 'react-toastify';
 
 const TaskDetails = () => {
     const { state } = useLocation();
@@ -23,6 +24,7 @@ const TaskDetails = () => {
                 emp_id: employee.emp_id,
             });
             console.log('Status updated successfully');
+            toast.success('Status updated successfully !')
         } catch (error) {
             console.error('Failed to update status', error);
             alert('Could not update status. Try again.');
