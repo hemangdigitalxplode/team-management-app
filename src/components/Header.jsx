@@ -11,7 +11,7 @@ const Header = () => {
   const handleLogout = () => {
     setEmployee(null); // Clear context state
     localStorage.removeItem('employee'); // Clear localStorage
-    toast.error('Logged out successfully!');
+    toast.warn('Logged out successfully!');
     navigate('/'); // Redirect to login
   };
 

@@ -147,6 +147,11 @@ const TaskDetails = () => {
 
                     </div>
 
+                    <div className="col-md-12">
+                            <label className="form-label">Commments</label>
+                            <textarea type="text" className="form-control" value={task.comment} readOnly />
+                        </div>
+
                     {/* Timer section */}
                     <div className="row mb-3 d-none">
                         <div className="col-md-6 d-flex flex-column align-items-end justify-content-end">
