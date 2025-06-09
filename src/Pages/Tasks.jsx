@@ -34,6 +34,16 @@ const Tasks = () => {
 
         fetchTasks();
     }, [employee]);
+    
+    const formatTime = (totalSeconds) => {
+        if (!totalSeconds || isNaN(totalSeconds)) return '00:00:00';
+
+        const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+        const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+        return `${hours}:${minutes}:${seconds}`;
+    };
 
     return (
         <div className="d-flex">
@@ -60,9 +70,11 @@ const Tasks = () => {
                                 <th>Priority</th>
                                 <th>Assigned Date</th>
                                 <th>Deadline</th>
+                                <th>Total Time</th> {/* ✅ Add this */}
                                 <th>Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {tasks.length === 0 ? (
                                 <tr>
@@ -78,7 +90,6 @@ const Tasks = () => {
                                             <span className={`badge text-white text-capitalize bg-${task.status === 'Completed' ? 'success' : 'warning'}`}>
                                                 {task.status}
                                             </span>
-
                                         </td>
                                         <td>
                                             <span
@@ -94,17 +105,17 @@ const Tasks = () => {
                                         </td>
                                         <td>{new Date(task.assigned_date).toLocaleDateString('en-GB').replaceAll('/', '-')}</td>
                                         <td>{new Date(task.due_date).toLocaleDateString('en-GB').replaceAll('/', '-')}</td>
+                                        <td>{formatTime(task.total_time_spent)}</td> {/* ✅ Time Display */}
                                         <td>
-                                            <NavLink
-                                                to={`/dashboard/task/${task.id}`}
-                                                state={{ task }}
-                                                className=""
-                                            >
-                                                <button className='btn btn-sm bg-warning'><i className="bi bi-eye"></i></button>
+                                            <NavLink to={`/dashboard/task/${task.id}`} state={{ task }}>
+                                                <button className='btn btn-sm bg-warning'>
+                                                    <i className="bi bi-pencil"></i>
+                                                </button>
                                             </NavLink>
-
                                         </td>
                                     </tr>
+
+
                                 ))
                             )}
                         </tbody>
