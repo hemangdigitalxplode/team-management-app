@@ -1,29 +1,38 @@
 import { useEffect, useState, useRef } from 'react';
 import axiosInstance from '../api/axios';
+import dayjs from 'dayjs';
+import { toast } from 'react-toastify';
 
 const useTaskTimer = (taskId) => {
     const [seconds, setSeconds] = useState(0);
-    const [initialSeconds, setInitialSeconds] = useState(0); // store backend time
     const [isTiming, setIsTiming] = useState(false);
     const intervalRef = useRef(null);
 
-    // ✅ Fetch existing time from backend
     useEffect(() => {
         const fetchTime = async () => {
             try {
                 const res = await axiosInstance.get(`/tasks/${taskId}/time`);
-                const backendTime = res.data?.time_spent || 0;
-                setSeconds(backendTime);
-                setInitialSeconds(backendTime);
+                const { time_spent, start_time } = res.data;
+
+                let total = time_spent || 0;
+
+                if (start_time) {
+                    const startedAt = dayjs(start_time);
+                    const now = dayjs();
+                    const elapsed = now.diff(startedAt, 'second');
+                    total += elapsed;
+                    setIsTiming(true); // auto resume
+                }
+
+                setSeconds(total);
             } catch (err) {
-                console.error('Error fetching time:', err);
+                console.error('Error fetching timer:', err);
             }
         };
 
         if (taskId) fetchTime();
     }, [taskId]);
 
-    // ✅ Timer logic
     useEffect(() => {
         if (isTiming) {
             intervalRef.current = setInterval(() => {
@@ -36,26 +45,25 @@ const useTaskTimer = (taskId) => {
         return () => clearInterval(intervalRef.current);
     }, [isTiming]);
 
-    // ✅ Periodically update backend every 60s with *new time only*
-    useEffect(() => {
-        if (!isTiming) return;
-
-        const saveInterval = setInterval(() => {
-            const delta = seconds - initialSeconds;
-            if (delta >= 60) {
-                saveTimeToBackend(seconds); // send full latest value
-                setInitialSeconds(seconds); // update base reference
-            }
-        }, 60000);
-
-        return () => clearInterval(saveInterval);
-    }, [isTiming, seconds, initialSeconds]);
-
-    const saveTimeToBackend = async (time) => {
+    const startTimer = async () => {
         try {
-            await axiosInstance.put(`/tasks/${taskId}/time`, { time_spent: time });
+            const res = await axiosInstance.put(`/tasks/${taskId}/start`);
+            console.log('Timer started and start_time saved:', res.data);
+            toast.success("Timer started!");
+            window.location.reload(); // ✅ reload page after starting
         } catch (err) {
-            console.error('Failed to auto-save task time:', err);
+            console.error('Failed to start timer:', err);
+        }
+    };
+
+    const stopTimer = async () => {
+        try {
+            const res = await axiosInstance.put(`/tasks/${taskId}/stop`, { time_spent: seconds });
+            console.log('Timer stopped and time saved:', res.data);
+            toast.error("Timer stopped!");
+            window.location.reload(); // ✅ reload page after starting
+        } catch (err) {
+            console.error('Failed to stop timer:', err);
         }
     };
 
@@ -69,8 +77,9 @@ const useTaskTimer = (taskId) => {
     return {
         seconds,
         isTiming,
-        setIsTiming,
-        formatTime,
+        startTimer,
+        stopTimer,
+        formatTime
     };
 };
 
