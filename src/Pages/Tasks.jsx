@@ -9,15 +9,17 @@ const Tasks = () => {
     const { employee } = useUser();
     const [tasks, setTasks] = useState([]);
     useEffect(() => {
-        if (tasks.length > 0) {
-            setTimeout(() => {
-                if (window.$.fn.dataTable.isDataTable('#tasksTable')) {
-                    window.$('#tasksTable').DataTable().destroy();
-                }
-                window.$('#tasksTable').DataTable();
-            }, 0);
-        }
-    }, [tasks]); // run when tasks change
+    if (tasks.length > 0) {
+        setTimeout(() => {
+            if (window.$.fn.dataTable.isDataTable('#tasksTable')) {
+                window.$('#tasksTable').DataTable().destroy();
+            }
+            window.$('#tasksTable').DataTable({
+                order: [[0, 'desc']] // Sort by first column (Task ID) descending
+            });
+        }, 0);
+    }
+}, [tasks]);
 
     useEffect(() => {
         const fetchTasks = async () => {
