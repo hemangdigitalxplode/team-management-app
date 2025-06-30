@@ -4,11 +4,14 @@ import { useUser } from '../context/UserContext'
 import axiosInstance from '../api/axios';
 import { toast } from 'react-toastify';
 import logo from '../assets/new-dx-logo-updated.png';
+import backgroundImg from '../assets/background.jpg'
 
 const EmployeeLogin = () => {
   const navigate = useNavigate();
   const [employeeId, setEmployeeId] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
 
   const { setEmployee } = useUser()
 
@@ -20,6 +23,8 @@ const EmployeeLogin = () => {
       toast.warn('Please enter both Employee ID and Password');
       return;
     }
+
+    setLoading(true); // ⏳ Start loading state
 
     try {
       const response = await axiosInstance.post('/employee/login', {
@@ -37,11 +42,22 @@ const EmployeeLogin = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false); // ✅ End loading state
     }
-  }
+  };
+
 
   return (
-    <div className="container d-flex justify-content-center align-items-center min-vh-100">
+    <div
+      className="container-fluid d-flex justify-content-center align-items-center min-vh-100"
+      style={{
+        backgroundImage: `url(${backgroundImg})`, // ✅ update this path
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="card shadow p-4 customLoginCard" style={{ maxWidth: '400px', width: '100%' }}>
         <div className="text-center mb-4">
           <img src={logo} alt="Logo" className="mb-3 mainLogo" />
@@ -73,11 +89,18 @@ const EmployeeLogin = () => {
             />
           </div>
           <div className="d-grid">
-            <button type="submit" className="btn btn-primary loginBtn">Login</button>
+            <button
+              type="submit"
+              className="btn btn-primary loginBtn"
+              disabled={loading}
+            >
+              {loading ? 'Wait...' : 'Login'}
+            </button>
           </div>
         </form>
       </div>
     </div>
+
   );
 };
 
