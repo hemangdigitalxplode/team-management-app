@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
 import axiosInstance from '../api/axios';
 import dayjs from 'dayjs';
-import { toast } from 'react-toastify';
 
 const useTaskTimer = (taskId) => {
-    const [seconds, setSeconds] = useState(0);
+    const [totalTimeSpent, setTotalTimeSpent] = useState(0); // DB time
+    const [sessionSeconds, setSessionSeconds] = useState(0); // current session
     const [isTiming, setIsTiming] = useState(false);
     const intervalRef = useRef(null);
 
@@ -14,17 +14,16 @@ const useTaskTimer = (taskId) => {
                 const res = await axiosInstance.get(`/tasks/${taskId}/time`);
                 const { time_spent, start_time } = res.data;
 
-                let total = time_spent || 0;
+                setTotalTimeSpent(time_spent || 0);
 
                 if (start_time) {
-                    const startedAt = dayjs(start_time);
-                    const now = dayjs();
-                    const elapsed = now.diff(startedAt, 'second');
-                    total += elapsed;
-                    setIsTiming(true); // auto resume
+                    const elapsed = dayjs().diff(dayjs(start_time), 'second');
+                    setSessionSeconds(elapsed);
+                    setIsTiming(true);
+                } else {
+                    setSessionSeconds(0);
+                    setIsTiming(false);
                 }
-
-                setSeconds(total);
             } catch (err) {
                 console.error('Error fetching timer:', err);
             }
@@ -36,7 +35,7 @@ const useTaskTimer = (taskId) => {
     useEffect(() => {
         if (isTiming) {
             intervalRef.current = setInterval(() => {
-                setSeconds((prev) => prev + 1);
+                setSessionSeconds(prev => prev + 1);
             }, 1000);
         } else {
             clearInterval(intervalRef.current);
@@ -47,35 +46,36 @@ const useTaskTimer = (taskId) => {
 
     const startTimer = async () => {
         try {
-            const res = await axiosInstance.put(`/tasks/${taskId}/start`);
-            console.log('Timer started and start_time saved:', res.data);
-            toast.success("Timer started!");
-            window.location.reload(); // ✅ reload page after starting
+            await axiosInstance.put(`/tasks/${taskId}/start`);
+            setSessionSeconds(0);
+            setIsTiming(true);
         } catch (err) {
-            console.error('Failed to start timer:', err);
+            console.error('Start timer failed:', err);
         }
     };
 
     const stopTimer = async () => {
         try {
-            const res = await axiosInstance.put(`/tasks/${taskId}/stop`, { time_spent: seconds });
-            console.log('Timer stopped and time saved:', res.data);
-            toast.error("Timer stopped!");
-            window.location.reload(); // ✅ reload page after starting
+            await axiosInstance.put(`/tasks/${taskId}/stop`, {
+                time_spent: sessionSeconds, // ✅ Send time
+            });
+            setTotalTimeSpent(prev => prev + sessionSeconds);
+            setSessionSeconds(0);
+            setIsTiming(false);
         } catch (err) {
-            console.error('Failed to stop timer:', err);
+            console.error('Stop timer failed:', err);
         }
     };
 
-    const formatTime = (totalSeconds) => {
-        const h = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
-        const m = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
-        const s = String(totalSeconds % 60).padStart(2, '0');
+    const formatTime = (seconds) => {
+        const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
+        const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+        const s = String(seconds % 60).padStart(2, '0');
         return `${h}:${m}:${s}`;
     };
 
     return {
-        seconds,
+        seconds: totalTimeSpent + sessionSeconds,
         isTiming,
         startTimer,
         stopTimer,
