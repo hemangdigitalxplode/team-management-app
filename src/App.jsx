@@ -13,23 +13,60 @@ import OfficeEvents from './Pages/OfficeEvents'
 import DXChat from './Pages/DXChat'
 import TaskDetails from './Pages/TaskDetails';
 import Notifications from './Pages/Notifications';
+import Profile from './Pages/Profile';
+import PrivateRoute from './hooks/PrivateRoute';
 
 function App() {
   return (
     <>
       <Routes>
+        {/* Public Route */}
         <Route path="/" element={<EmployeeLogin />} />
-        <Route path="/dashboard/home" element={<Dashboard />} />
-        <Route path="/dashboard/task" element={<Tasks />} />
-        <Route path='/dashboard/task/:id' element={<TaskDetails/>} />
-        <Route path="/dashboard/add-task" element={<AddTask />} />
-        <Route path="/dashboard/attendance" element={<Attendance />} />
-        <Route path="/dashboard/leave-management" element={<Attendance />} />
-        <Route path="/dashboard/office-events" element={<OfficeEvents />} />
-        <Route path="/dashboard/team-chat" element={<DXChat />} />
-        <Route path="/dashboard/notification" element={<Notifications />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/dashboard/home"
+          element={<PrivateRoute><Dashboard /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/task"
+          element={<PrivateRoute><Tasks /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/task/:id"
+          element={<PrivateRoute><TaskDetails /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/add-task"
+          element={<PrivateRoute><AddTask /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/attendance"
+          element={<PrivateRoute><Attendance /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/leave-management"
+          element={<PrivateRoute><Attendance /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/office-events"
+          element={<PrivateRoute><OfficeEvents /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/team-chat"
+          element={<PrivateRoute><DXChat /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/notification"
+          element={<PrivateRoute><Notifications /></PrivateRoute>}
+        />
+        <Route
+          path="/dashboard/profile"
+          element={<PrivateRoute><Profile /></PrivateRoute>}
+        />
       </Routes>
-      {/* Toast Container (should be outside routes) */}
+
+      {/* Toast Container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}
