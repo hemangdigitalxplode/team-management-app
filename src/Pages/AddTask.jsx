@@ -3,9 +3,11 @@ import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import axiosInstance from '../api/axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AddTask = () => {
   const [clients, setClients] = useState([]);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [taskDetails, setTaskDetails] = useState({
     subject: '',
@@ -91,6 +93,13 @@ const AddTask = () => {
       <div className="flex-grow-1">
         <Header />
         <div className="p-4">
+          <button
+            className="btn btn-outline-dark rounded-circle mb-3"
+            style={{ width: '40px', height: '40px' }}
+            onClick={() => navigate(-1)}
+          >
+            <i className="bi bi-arrow-left"></i>
+          </button>
           <h4 className="mb-4">Add New Task</h4>
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="row g-3">

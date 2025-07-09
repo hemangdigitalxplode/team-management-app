@@ -5,7 +5,7 @@ import Logo from '../assets/new-dx-logo-updated.png'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed)

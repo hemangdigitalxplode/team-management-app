@@ -2,15 +2,18 @@ import { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import { useUser } from '../context/UserContext';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import axiosInstance from '../api/axios';
 import DataTable from 'react-data-table-component';
 
 const Tasks = () => {
   const { employee } = useUser();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [clients, setClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [filters, setFilters] = useState({
     client: '',
     status: '',
@@ -34,6 +37,8 @@ const Tasks = () => {
         setClients(uniqueClients);
       } catch (error) {
         console.error('Error fetching tasks:', error);
+      } finally {
+        setLoading(false); // stop loader
       }
     };
 
@@ -66,6 +71,12 @@ const Tasks = () => {
     setFilters({ client: '', status: '', from: '', to: '' });
     setFilteredTasks(tasks);
   };
+
+  const liveFilteredTasks = filteredTasks.filter(task =>
+    task.task_id?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.subject?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.client?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const columns = [
     { name: 'Task ID', selector: row => row.task_id, sortable: true },
@@ -145,90 +156,135 @@ const Tasks = () => {
       <div className="flex-grow-1" style={{ minHeight: '100vh', background: '#f9f9f9' }}>
         <Header />
         <div className="p-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h4>My Tasks</h4>
-            <button
-              className="btn btn-primary btn-sm dxBtn"
-              data-bs-toggle="modal"
-              data-bs-target="#filterModal"
-            >
-              Filter Tasks
-            </button>
+          <button
+            className="btn btn-outline-dark rounded-circle mb-3"
+            style={{ width: '40px', height: '40px' }}
+            onClick={() => navigate(-1)}
+          >
+            <i className="bi bi-arrow-left"></i>
+          </button>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+            {/* Left: Heading */}
+            <h4 className="mb-0">My Tasks</h4>
+
+            {/* Right: Filter + Search */}
+            <div className="d-flex align-items-center gap-2 ms-auto">
+              {/* Filter Button with Icon */}
+              {/* <a style={{ textDecoration: 'none' }} className='' href="/dashboard/add-task">
+                <button
+                  className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+                  data-bs-toggle="modal"
+                  data-bs-target="#filterModal"
+                >
+                  <i className="bi bi-clipboard-plus"></i> Create 
+                </button>
+              </a> */}
+              <button
+                className="btn btn-primary btn-sm d-flex align-items-center gap-1"
+                data-bs-toggle="modal"
+                data-bs-target="#filterModal"
+              >
+                <i className="bi bi-filter"></i> Filter
+              </button>
+
+              {/* Search Input */}
+              <div className="input-group" style={{ maxWidth: '280px' }}>
+                <span className="input-group-text bg-white border-end-0">
+                  <i className="bi bi-search"></i>
+                </span>
+                <input
+                  type="text"
+                  className="form-control border-start-0"
+                  placeholder="Search by ID, Subject, Client..."
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
           </div>
+
           <div className="table-responsive">
-            <DataTable
-              columns={columns}
-              data={filteredTasks}
-              pagination
-              paginationPerPage={30}
-              striped
-              highlightOnHover
-              persistTableHead
-              conditionalRowStyles={[
-                {
-                  when: row => row.status === 'Completed',
-                  style: {
-                    backgroundColor: '#d4edda', // light green
-                    border: '1px solid #c3e6cb',
-                  },
-                },
-                {
-                  when: row => row.status === 'Working',
-                  style: {
-                    backgroundColor: '#fff3cd', // light yellow
-                    border: '1px solid #ffeeba',
-                  },
-                },
-                {
-                  when: row => row.status === 'Pending',
-                  style: {
-                    backgroundColor: '#f8d7da', // light red
-                    border: '1px solid #f5c6cb',
-                  },
-                },
-                {
-                  when: row => row.status === 'To-do',
-                  style: {
-                    backgroundColor: 'rgb(193, 221, 238)', // light red
-                    border: '1px solidrgb(193, 221, 238)',
-                  },
-                },
-              ]}
-              customStyles={{
-                rows: {
-                  style: {
-                    border: '1px solid #dee2e6',
-                    backgroundColor: '#fff',
-                    padding: '6px 6px',
-                    fontSize: '0.99rem',
-                  },
-                },
-                headRow: {
-                  style: {
-                    backgroundColor: '#f8f9fa',
-                    border: '1px solid #dee2e6',
-                  },
-                },
-                headCells: {
-                  style: {
-                    fontWeight: '600',
-                    fontSize: '0.95rem',
-                    padding: '12px',
-                    borderRight: '1px solid #dee2e6',
-                    backgroundColor: '#f1f1f1',
-                  },
-                },
-                cells: {
-                  style: {
-                    padding: '4px',
-                    borderRight: '1px solid #dee2e6',
-                  },
-                },
-              }}
-            />
+            {loading ? (
+              <div className="text-center my-5">
+                <div className="spinner-border text-primary" role="status" style={{ width: '3rem', height: '3rem' }}>
+                  <span className="visually-hidden">Loading...</span>
+                </div>
+              </div>
+            ) : (
+              <div className={`fade-in-table ${!loading ? 'show' : ''}`}>
+                <DataTable
+                  columns={columns}
+                  data={liveFilteredTasks}
+                  pagination
+                  paginationPerPage={30}
+                  striped
+                  highlightOnHover
+                  persistTableHead
+                  conditionalRowStyles={[
+                    {
+                      when: row => row.status === 'Completed',
+                      style: {
+                        backgroundColor: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                      },
+                    },
+                    {
+                      when: row => row.status === 'Working',
+                      style: {
+                        backgroundColor: '#fff3cd',
+                        border: '1px solid #ffeeba',
+                      },
+                    },
+                    {
+                      when: row => row.status === 'Pending',
+                      style: {
+                        backgroundColor: '#f8d7da',
+                        border: '1px solid #f5c6cb',
+                      },
+                    },
+                    {
+                      when: row => row.status === 'To-do',
+                      style: {
+                        backgroundColor: 'rgb(193, 221, 238)',
+                        border: '1px solid rgb(193, 221, 238)',
+                      },
+                    },
+                  ]}
+                  customStyles={{
+                    rows: {
+                      style: {
+                        border: '1px solid #dee2e6',
+                        backgroundColor: '#fff',
+                        padding: '6px 6px',
+                        fontSize: '0.99rem',
+                      },
+                    },
+                    headRow: {
+                      style: {
+                        backgroundColor: '#f8f9fa',
+                        border: '1px solid #dee2e6',
+                      },
+                    },
+                    headCells: {
+                      style: {
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        padding: '12px',
+                        borderRight: '1px solid #dee2e6',
+                        backgroundColor: '#f1f1f1',
+                      },
+                    },
+                    cells: {
+                      style: {
+                        padding: '4px',
+                        borderRight: '1px solid #dee2e6',
+                      },
+                    },
+                  }}
+                />
+              </div>
+            )}
           </div>
-
-
 
         </div>
       </div>

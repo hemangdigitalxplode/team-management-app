@@ -1,24 +1,36 @@
-.customLoginCard{
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+* {
+  font-family: "DM Sans", sans-serif;
+}
+
+.customLoginCard {
   background-color: black !important;
   color: white !important;
   border: 7px solid #19b5e5 !important;
 }
-.mainLogo{
+
+.mainLogo {
   width: 200px;
 }
-.heading{
+
+.heading {
   font-size: 1.5rem;
 }
-.loginBtn{
+
+.loginBtn {
   background-color: #19b5e5 !important;
 }
-.sidebar{
+
+.sidebar {
   background-color: black;
 }
-.sidebarLogo{
+
+.sidebarLogo {
   width: 170px;
 }
-.sidebarLinks{
+
+.sidebarLinks {
   margin: 40px 0;
 }
 
@@ -30,4 +42,50 @@
   padding: 8px 12px;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
+}
+
+.fade-in-table {
+  opacity: 0;
+  filter: blur(5px);
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, filter 0.6s ease, transform 0.6s ease;
+}
+
+.fade-in-table.show {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+.dot-loader {
+  display: flex;
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: #999;
+}
+
+.dot-loader span {
+  animation: bounce 1.2s infinite ease-in-out;
+  margin: 0 2px;
+}
+
+.dot-loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot-loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-6px);
+  }
 }

@@ -1,69 +1,90 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Sidebar from '../components/Sidebar'
 import Header from '../components/Header'
+import axiosInstance from '../api/axios'
+import { useUser } from '../context/UserContext'
+import { useNavigate } from 'react-router-dom'
 
 const Notifications = () => {
-    const notifications = [
-        {
-            id: 1,
-            title: 'Project Deadline Extended',
-            message: 'The deadline for the ABC project has been extended to 25th May.',
-            time: '2 hours ago',
-            type: 'info',
-        },
-        {
-            id: 2,
-            title: 'New Task Assigned',
-            message: 'You have been assigned a new task: "Client Presentation Design".',
-            time: 'Today at 10:30 AM',
-            type: 'primary',
-        },
-        {
-            id: 3,
-            title: 'Office Event',
-            message: 'Join us for the Friday Fun Session in the lounge at 5 PM!',
-            time: 'Yesterday',
-            type: 'success',
-        },
-        {
-            id: 4,
-            title: 'Policy Update',
-            message: 'Company leave policy has been updated. Please check the HR portal.',
-            time: '2 days ago',
-            type: 'warning',
-        },
-    ];
+    const { employee } = useUser()
+    const [notifications, setNotifications] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    // Fetching notifications
+    useEffect(() => {
+        if (employee?.emp_id) {
+            axiosInstance.get(`/notifications/${employee?.emp_id}`)
+                .then(res => {
+                    setNotifications(res.data.notifications);
+                    console.log(res.data)
+                })
+                .catch(err => {
+                    console.error("Error fetching notifications:", err);
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [employee?.emp_id]);
 
     return (
-        <div className="d-flex">
+        <div className='d-flex'>
             <Sidebar />
             <div className="flex-grow-1">
                 <Header />
                 <div className="p-4">
-                    <h3>Notifications</h3>
-                    <p className="mb-4">Explore upcoming and past office events, celebrations, and important dates here.</p>
+                    <button
+                        className="btn btn-outline-dark rounded-circle mb-3"
+                        style={{ width: '40px', height: '40px' }}
+                        onClick={() => navigate(-1)}
+                    >
+                        <i className="bi bi-arrow-left"></i>
+                    </button>
+                    <h3 className="fw-bold">Notifications</h3>
+                    <p className="mb-4 text-muted">
+                        Explore upcoming and past office events, celebrations, and important dates here.
+                    </p>
 
-                    <div className="list-group">
-                        {notifications.map((note) => (
-                            <div key={note.id} className={`list-group-item list-group-item-${note.type} mb-3`}>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 className="mb-1">{note.title}</h5>
-                                        <p className="mb-1">{note.message}</p>
-                                        <small className="text-muted">{note.time}</small>
-                                    </div>
-                                    <div>
-                                        <i className="bi bi-bell-fill fs-4"></i>
+                    {loading ? (
+                        <div className="text-center my-5">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    ) : notifications.length === 0 ? (
+                        <div className="alert alert-info">No notifications yet.</div>
+                    ) : (
+                        <div className="list-group">
+                            {notifications.map(note => (
+                                <div
+                                    key={note.id}
+                                    className={`list-group-item list-group-item-${note.type} shadow-sm rounded mb-3 border-0`}
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 className="mb-1">{note.title}</h5>
+                                            <p className="mb-2">{note.message}</p>
+                                            <small className="text-muted">{note.time}</small>
+                                        </div>
+                                        <div className="text-end">
+                                            <i className="bi bi-bell-fill fs-4 text-dark mb-2"></i>
+                                            <br />
+                                            <a
+                                                href={`/dashboard/task`}
+                                                className="btn btn-sm btn-outline-dark"
+                                            >
+                                                View
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-    )
+
+    );
 }
 
 export default Notifications
